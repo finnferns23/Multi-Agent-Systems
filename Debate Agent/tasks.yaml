@@ -1,0 +1,23 @@
+propose:
+  description: >
+    Present arguments supporting the motion: {motion}.
+    Structure the response clearly and persuasively.
+  expected_output: >
+    A well-structured supporting argument for the motion.
+  agent: debater
+
+oppose:
+  description: >
+    Present arguments opposing the motion: {motion}.
+    Structure the response clearly and persuasively.
+  expected_output: >
+    A well-structured opposing argument for the motion.
+  agent: debater
+
+decide:
+  description: >
+    Review the supporting and opposing arguments for the motion: {motion}.
+    Determine which side made the stronger case and explain why.
+  expected_output: >
+    A final judgment naming the stronger side with reasoning.
+  agent: judge

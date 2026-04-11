@@ -1,0 +1,8 @@
+crewai>=0.28.0
+crewai-tools
+pydantic>=2.0
+python-dotenv
+gradio
+openai
+anthropic
+tiktoken

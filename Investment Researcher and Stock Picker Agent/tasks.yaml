@@ -1,0 +1,58 @@
+find_trending_companies:
+  description: >
+    Search the latest news in {sector} and identify 2-3 public companies that are genuinely trending.
+    Prefer companies with meaningful developments such as earnings, major product announcements,
+    acquisitions, strategic partnerships, regulation, AI developments, or notable market shifts.
+    Avoid duplicates and weakly justified picks.
+  expected_output: >
+    A structured list of 2-3 trending companies with ticker symbols and a concise reason for why each company is trending.
+  agent: trending_company_finder
+  output_file: output/trending_companies.json
+
+research_companies:
+  description: >
+    For each shortlisted company, conduct detailed research and provide:
+    1. Company overview
+    2. Current market position
+    3. Recent news and developments
+    4. Growth opportunities
+    5. Key risks and challenges
+    6. Investment potential
+    Make the output factual, structured, and directly useful for comparison.
+  expected_output: >
+    A structured research file covering all shortlisted companies with clear sections for market position,
+    recent developments, future outlook, risks, and investment potential.
+  agent: researcher
+  context:
+    - find_trending_companies
+  output_file: output/research_report.json
+
+analyze_companies:
+  description: >
+    Analyze the research findings and create a polished comparison report.
+    The report must include:
+    1. Executive summary
+    2. Side-by-side comparison of the companies
+    3. Key trends and patterns
+    4. Risks versus upside for each company
+    5. A clear analytical recommendation
+    This is analysis for education and research, not personal financial advice.
+  expected_output: >
+    A professional markdown report comparing all shortlisted companies and identifying the strongest candidate for deeper investment consideration.
+  agent: analyst
+  context:
+    - research_companies
+  output_file: output/final_report.md
+
+pick_best_company:
+  description: >
+    Review the research and analysis, pick the best company for further investment consideration,
+    send a push notification with the chosen company and a one-line rationale when notification credentials exist,
+    and produce a final decision summary that also explains why the others were not selected.
+  expected_output: >
+    A final markdown decision document naming the selected company, the reasons it was chosen,
+    and the reasons the other shortlisted companies were not selected.
+  agent: stock_picker
+  context:
+    - analyze_companies
+  output_file: output/decision.md
