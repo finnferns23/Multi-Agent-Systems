@@ -17,6 +17,8 @@ agents/profile_agent.py
    ↓
 agents/nutrition_agent.py
    ↓
+agents/meal_planner_agent.py
+   ↓
 agents/workout_agent.py
    ↓
 agents/recovery_agent.py
@@ -30,6 +32,7 @@ Final Integrated Health and Fitness Plan
 
 - `agents/profile_agent.py` analyzes goals, constraints, lifestyle, safety priorities, and planning context.
 - `agents/nutrition_agent.py` creates general nutrition, hydration, meal-structure, portion, and adherence guidance.
+- `agents/meal_planner_agent.py` creates recipe-inspired weekly meal templates, shopping lists, estimated food cost, and simple meal-planning notes.
 - `agents/workout_agent.py` creates training structure, warm-up, strength, cardio, mobility, cool-down, progression, and modifications.
 - `agents/recovery_agent.py` creates recovery, sleep, hydration, stress, tracking, and habit guidance.
 - `agents/safety_agent.py` reviews the full output, flags risks, removes contradictions, and produces the final checklist.
@@ -47,6 +50,7 @@ Health and Fitness Planner Agent/
 │   ├── orchestrator.py
 │   ├── profile_agent.py
 │   ├── nutrition_agent.py
+│   ├── meal_planner_agent.py
 │   ├── workout_agent.py
 │   ├── recovery_agent.py
 │   ├── safety_agent.py
@@ -55,6 +59,7 @@ Health and Fitness Planner Agent/
 │   ├── __init__.py
 │   ├── profile_tools.py
 │   ├── metrics_tools.py
+│   ├── meal_tools.py
 │   ├── safety_tools.py
 │   └── formatting_tools.py
 ├── app.py
@@ -73,7 +78,9 @@ Health and Fitness Planner Agent/
 - CLI and Streamlit entry points
 - Profile validation
 - BMI and hydration estimates
-- Nutrition, workout, recovery, habit, and safety planning
+- Nutrition, meal planning, workout, recovery, habit, and safety planning
+- Recipe-inspired weekly meal templates with shopping lists and estimated food costs
+- Optional Spoonacular recipe search helper through `SPOONACULAR_API_KEY`
 - Follow-up Q&A based on the generated plan
 - Clean GitHub-ready structure with no `.env`, `.gitignore`, cache, or junk files included
 
@@ -96,6 +103,7 @@ Set one or both provider keys in your terminal or deployment environment.
 ```bash
 OPENAI_API_KEY=your_openai_key_here
 GEMINI_API_KEY=your_gemini_key_here
+SPOONACULAR_API_KEY=optional_recipe_search_key_here
 ```
 
 If no API key is provided, the project automatically runs in deterministic demo mode.
@@ -158,3 +166,37 @@ tools/
 ```
 
 Imports remain stable through `tools/__init__.py`, while each tool category now has its own maintainable Python file.
+
+## Meal Planning Add-On Integration
+
+This version integrates the useful meal-planning logic from the uploaded AI Recipe Meal Planning Agent into the Health and Fitness Planner architecture. Health Fitness remains the main project. The recipe project is not copied as a separate app. Instead, the reusable meal tools are added as `tools/meal_tools.py`, and the new specialist agent is added as `agents/meal_planner_agent.py`.
+
+The integration avoids adding Agno or DuckDuckGo dependencies because the main Health Fitness project already has its own agent base, provider routing, LangGraph workflow, CLI, and Streamlit app. This keeps the project clean, lighter, and easier to run.
+
+New capability added:
+
+- Weekly meal template generation
+- Dietary preference filtering
+- Estimated calories and protein per day
+- Estimated food cost
+- Shopping list generation
+- Meal-plan insights
+- Optional Spoonacular recipe search helper when `SPOONACULAR_API_KEY` is configured
+
+Updated workflow:
+
+```text
+ProfileAnalysisAgent
+↓
+NutritionPlanningAgent
+↓
+MealPlannerAgent
+↓
+WorkoutProgrammingAgent
+↓
+RecoveryHabitAgent
+↓
+SafetyReviewAgent
+↓
+Final Plan
+```

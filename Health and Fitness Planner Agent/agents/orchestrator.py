@@ -6,6 +6,7 @@ from typing import Dict, Optional, TypedDict
 
 from .base import AgentResult, DEFAULT_GEMINI_MODEL, DEFAULT_OPENAI_MODEL, SUPPORTED_PROVIDERS
 from .nutrition_agent import NutritionPlanningAgent
+from .meal_planner_agent import MealPlannerAgent
 from .profile_agent import ProfileAnalysisAgent
 from .qa_agent import FollowUpQAAgent
 from .recovery_agent import RecoveryHabitAgent
@@ -46,6 +47,7 @@ class HealthFitnessOrchestrator:
         self.model_id = model_id
         self.profile_agent = ProfileAnalysisAgent(provider, api_key, model_id)
         self.nutrition_agent = NutritionPlanningAgent(provider, api_key, model_id)
+        self.meal_planner_agent = MealPlannerAgent(provider, api_key, model_id)
         self.workout_agent = WorkoutProgrammingAgent(provider, api_key, model_id)
         self.recovery_agent = RecoveryHabitAgent(provider, api_key, model_id)
         self.safety_agent = SafetyReviewAgent(provider, api_key, model_id)
@@ -60,6 +62,11 @@ class HealthFitnessOrchestrator:
     def _nutrition_node(self, state: PlannerState) -> PlannerState:
         outputs = dict(state.get("outputs", {}))
         outputs["nutrition"] = self.nutrition_agent.create_plan(state["profile"])
+        return {**state, "outputs": outputs}
+
+    def _meal_planning_node(self, state: PlannerState) -> PlannerState:
+        outputs = dict(state.get("outputs", {}))
+        outputs["meal_planning"] = self.meal_planner_agent.create_plan(state["profile"])
         return {**state, "outputs": outputs}
 
     def _workout_node(self, state: PlannerState) -> PlannerState:
@@ -86,13 +93,15 @@ class HealthFitnessOrchestrator:
         graph = StateGraph(PlannerState)
         graph.add_node("profile_analysis", self._profile_node)
         graph.add_node("nutrition_planning", self._nutrition_node)
+        graph.add_node("meal_planning", self._meal_planning_node)
         graph.add_node("workout_programming", self._workout_node)
         graph.add_node("recovery_habits", self._recovery_node)
         graph.add_node("safety_review", self._safety_node)
         graph.add_node("final_plan", self._final_node)
         graph.set_entry_point("profile_analysis")
         graph.add_edge("profile_analysis", "nutrition_planning")
-        graph.add_edge("nutrition_planning", "workout_programming")
+        graph.add_edge("nutrition_planning", "meal_planning")
+        graph.add_edge("meal_planning", "workout_programming")
         graph.add_edge("workout_programming", "recovery_habits")
         graph.add_edge("recovery_habits", "safety_review")
         graph.add_edge("safety_review", "final_plan")
@@ -111,6 +120,7 @@ class HealthFitnessOrchestrator:
         outputs = {
             "profile": self.profile_agent.analyze(profile),
             "nutrition": self.nutrition_agent.create_plan(profile),
+            "meal_planning": self.meal_planner_agent.create_plan(profile),
             "workout": self.workout_agent.create_plan(profile),
             "recovery": self.recovery_agent.create_plan(profile),
         }
@@ -131,7 +141,7 @@ class HealthFitnessOrchestrator:
             {
                 "LangGraph Multi-Agent Architecture": (
                     "User Profile → HealthFitnessOrchestrator → ProfileAnalysisAgent → NutritionPlanningAgent → "
-                    "WorkoutProgrammingAgent → RecoveryHabitAgent → SafetyReviewAgent → Final Plan"
+                    "MealPlannerAgent → WorkoutProgrammingAgent → RecoveryHabitAgent → SafetyReviewAgent → Final Plan"
                 ),
                 "Profile Summary": (
                     f"Provider: **{self.provider}** | Model: **{self.effective_model_id}**\n\n"
@@ -142,6 +152,7 @@ class HealthFitnessOrchestrator:
                 ),
                 outputs["profile"].agent_name: outputs["profile"].content,
                 outputs["nutrition"].agent_name: outputs["nutrition"].content,
+                outputs["meal_planning"].agent_name: outputs["meal_planning"].content,
                 outputs["workout"].agent_name: outputs["workout"].content,
                 outputs["recovery"].agent_name: outputs["recovery"].content,
                 review.agent_name: review.content,

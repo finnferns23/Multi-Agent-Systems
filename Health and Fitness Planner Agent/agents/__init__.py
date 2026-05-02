@@ -2,6 +2,7 @@
 
 from .base import AgentResult, DEFAULT_GEMINI_MODEL, DEFAULT_OPENAI_MODEL, SUPPORTED_PROVIDERS
 from .nutrition_agent import NutritionPlanningAgent
+from .meal_planner_agent import MealPlannerAgent
 from .orchestrator import HealthFitnessOrchestrator
 from .profile_agent import ProfileAnalysisAgent
 from .qa_agent import FollowUpQAAgent
@@ -17,6 +18,7 @@ __all__ = [
     "HealthFitnessOrchestrator",
     "ProfileAnalysisAgent",
     "NutritionPlanningAgent",
+    "MealPlannerAgent",
     "WorkoutProgrammingAgent",
     "RecoveryHabitAgent",
     "SafetyReviewAgent",
